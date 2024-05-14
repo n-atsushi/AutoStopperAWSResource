@@ -1,0 +1,2 @@
+# AutoStopperAWSResource
+AutoStopperAWSResource
