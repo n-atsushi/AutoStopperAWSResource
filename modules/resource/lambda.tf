@@ -76,9 +76,9 @@ resource "aws_iam_role" "lambda_role" {
   }
 }
 
-# data "archive_file" "lambda" {
+# data "archive_file" "lambda_scripts" {
 #   type        = "zip"
-#   source_file = "lambda.js"
+#   source_file = "lambda_scripts.js"
 #   output_path = "lambda_function_payload.zip"
 # }
 
@@ -88,7 +88,7 @@ resource "aws_iam_role" "lambda_role" {
 #   role          = aws_iam_role.iam_for_lambda.arn
 #   handler       = "index.test"
 
-#   source_code_hash = data.archive_file.lambda.output_base64sha256
+#   source_code_hash = data.archive_file.lambda_scripts.output_base64sha256
 
 #   runtime = "nodejs18.x"
 
