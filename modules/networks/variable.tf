@@ -2,6 +2,7 @@
 variable "vpc" {
   type = object({
     vpc_name = string
+    vpc_cidr_block = string
   })
 }
 
@@ -16,4 +17,3 @@ variable "subnets" {
     cidr_block  = string
   }))
 }
-

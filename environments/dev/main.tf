@@ -27,6 +27,7 @@ module "dev-networks" {
 
   vpc = {
     vpc_name = "AutoStopVPC"
+    vpc_cidr_block = "192.168.0.0/16"
   }
 
   subnets = {
@@ -51,6 +52,15 @@ module "dev-resources" {
         role_name = "auto-stop-lamnda-role"
       }
     } 
+  }
+
+  s3 = {
+    s3-auto-resource = {
+      bucket_name = "s3-auto-resource-atsushi"
+    }
+    s3-auto-resource-db = {
+      bucket_name = "s3-auto-resource-db-atsushi"
+    }
   }
 
 }

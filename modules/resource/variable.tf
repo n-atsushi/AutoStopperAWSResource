@@ -6,3 +6,9 @@ variable "lambdas" {
     })
   }))
 }
+
+variable "s3" {
+  type = map(object({
+    bucket_name = string
+  }))
+}
