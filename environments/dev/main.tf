@@ -56,7 +56,7 @@ module "dev-resources" {
 
   s3 = {
     s3-auto-resource = {
-      bucket_name = "s3-auto-resource-atsushi"
+      bucket_name = "s3-auto-resource-yml-atsushi"
     }
     s3-auto-resource-db = {
       bucket_name = "s3-auto-resource-db-atsushi"
