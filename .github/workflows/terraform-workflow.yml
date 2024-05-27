@@ -1,0 +1,94 @@
+name: 'Infrastructure Checks'
+on:
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, closed]
+
+jobs:
+  terraform:
+    name: 'Terraform Checks'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        directory: ['environments/dev']
+    defaults:
+      run:
+        working-directory: ${{ matrix.directory }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.7"    
+
+      - name: Setup AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-1
+
+      - name: Terraform Format
+        id: fmt
+        run: terraform fmt -check
+
+      - name: Check if directory is not empty
+        id: check
+        run: |
+          if [ "$(ls -A .)" ]; then
+            echo "Directory is not empty"
+          else
+            echo "Directory is empty"
+            exit 1
+          fi
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color
+        continue-on-error: true
+      
+      - name: tfsec
+        uses: aquasecurity/tfsec-pr-commenter-action@v1.2.0
+        with:
+          github_token: ${{ github.token }}
+
+  deploy:
+    name: 'Deploy to AWS'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        directory: ['environments/dev']
+    defaults:
+      run:
+        working-directory: ${{ matrix.directory }}
+    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+    needs: terraform
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.7"
+      
+      - name: Setup AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-1
+     
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
