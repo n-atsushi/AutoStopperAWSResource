@@ -26,7 +26,7 @@ module "dev-networks" {
   source = "../../modules/networks"
 
   vpc = {
-    vpc_name = "AutoStopVPC"
+    vpc_name       = "AutoStopVPC"
     vpc_cidr_block = "192.168.0.0/16"
   }
 
@@ -51,7 +51,7 @@ module "dev-resources" {
       role = {
         role_name = "auto-stop-lamnda-role"
       }
-    } 
+    }
   }
 
   s3 = {
