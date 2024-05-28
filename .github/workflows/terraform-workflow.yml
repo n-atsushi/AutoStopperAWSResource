@@ -122,6 +122,6 @@ jobs:
       - name: build and push docker image to ecr
         env:
           IMAGE_TAG: latest
-          run: |
+        run: |
               docker build . --tag ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
               docker push ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
