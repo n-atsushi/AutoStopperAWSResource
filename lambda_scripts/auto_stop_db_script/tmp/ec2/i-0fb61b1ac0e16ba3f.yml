@@ -1,0 +1,18 @@
+ec2_instance:
+  - instance_id: "i-0fb61b1ac0e16ba3f"
+    start_time:
+      Monday: "08:00"
+      Tuesday: "09:00"
+      Wednesday: "10:00"
+      Thursday: "11:00"
+      Friday: "12:00"
+      Saturday: "13:00"
+      Sunday: "14:00"
+    end_time:
+      Monday: "20:00"
+      Tuesday: "99:99"
+      Wednesday: "21:00"
+      Thursday: "22:00"
+      Friday: "23:00"
+      Saturday: "14:30"
+      Sunday: "12:00"

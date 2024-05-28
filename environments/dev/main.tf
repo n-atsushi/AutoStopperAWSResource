@@ -63,4 +63,10 @@ module "dev-resources" {
     }
   }
 
+  ecr = {
+    auto-stop-resource-lambda = {
+      ecr_name = "auto-stop-resource-lambda"
+    }
+  }
+
 }
