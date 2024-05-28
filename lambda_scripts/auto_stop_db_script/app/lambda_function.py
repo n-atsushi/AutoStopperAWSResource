@@ -1,26 +1,12 @@
-import os
 import sys
 import boto3
-import sqlite3
-from datetime import datetime, timezone, timedelta
-
-
+import os
 
 region_name = os.environ.get('REGION_NAME', 'ap-northeast-1')
 ec2_client = boto3.client('ec2', region_name=region_name)
 s3_client = boto3.client('s3', region_name=region_name)
 
-yml_bucket_name = os.environ.get('S3_AUTO_RESOURCE_YML_BUCKET'
-                                 , 's3-auto-resource-yml-atsushi')
 
-db_bucket_name = os.environ.get('S3_AUTO_RESOURCE_DB_BUCKET'
-                                , 's3-auto-resource-db-atsushi')
-
-db_bucket_path = os.environ.get('S3_AUTO_RESOURCE_DB_PATH'
-                                , 'db-resources')
-
-db_bucket_obj = os.environ.get('S3_AUTO_RESOURCE_DB_OBJ'
-                                , 'aws_resources.db')
 
 #sqlite3
 def initialize_db_connection():
@@ -75,9 +61,6 @@ def get_parameter(param_key, WithDecryption=True):
 
 
 def main():
-    # eventから、S3で連携されたファイルについて、パスを取得する
-
-    # S3からaws_resources.dbをダウンロードしてくる
     region_name = os.environ['REGION_NAME']
     pass
 

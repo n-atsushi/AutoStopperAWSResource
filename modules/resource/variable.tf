@@ -12,9 +12,3 @@ variable "s3" {
     bucket_name = string
   }))
 }
-
-variable "ecr" {
-  type = map(object({
-    ecr_name = string
-  }))
-}
