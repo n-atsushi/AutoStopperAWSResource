@@ -59,6 +59,41 @@ jobs:
         uses: aquasecurity/tfsec-pr-commenter-action@v1.2.0
         with:
           github_token: ${{ github.token }}
+  deploy-ecr:
+    name: 'Deploy ECR to AWS'
+    runs-on: ubuntu-latest
+    environment: DEV
+    strategy:
+      matrix:
+        directory: [ 'lambda_scripts/auto_stop_resource_script' ]
+    defaults:
+      run:
+        working-directory: ${{ matrix.directory }}
+    needs: terraform
+    steps:
+      - name: Set up arm64
+        uses: docker/setup-qemu-action@v2
+        with:
+          platforms: linux/arm64
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-1
+      - name: ECR Login
+        uses: aws-actions/amazon-ecr-login@v2
+        id: login-ecr
+
+      - name: build and push docker image to ecr
+        env:
+          IMAGE_TAG: latest
+        run: |
+          docker build . --tag ${{ vars.REGISTRY }}/${{ vars.AUTO_STOP_RESOURCE_REPOSITORY }}:${{ env.IMAGE_TAG }}
+          docker push ${{ vars.REGISTRY }}/${{ vars.AUTO_STOP_RESOURCE_REPOSITORY }}:${{ env.IMAGE_TAG }}
 
   deploy:
     name: 'Deploy to AWS'
@@ -70,8 +105,7 @@ jobs:
     defaults:
       run:
         working-directory: ${{ matrix.directory }}
-    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
-    needs: terraform
+    needs: deploy-ecr
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -94,30 +128,3 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
-  deploy-ecr:
-    name: 'Deploy ECR to AWS'
-    runs-on: ubuntu-latest
-    environment: DEV
-    strategy:
-      matrix:
-        directory: [ 'lambda_scripts/auto_stop_resource_script' ]
-    defaults:
-      run:
-        working-directory: ${{ matrix.directory }}
-    needs: deploy
-    steps:
-      - name: Setup AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-northeast-1
-      - name: ECR Login
-        uses: aws-actions/amazon-ecr-login@v2
-        id: login-ecr
-      - name: build and push docker image to ecr
-        env:
-          IMAGE_TAG: latest
-          run: |
-              docker build . --tag ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
-              docker push ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}

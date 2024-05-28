@@ -3,6 +3,19 @@ variable "lambdas" {
     lambda_name = string
     role = object({
       role_name = string
+      policies = object({
+        ec2 = object({
+          actions = list(string)
+          resources = list(string)
+        })
+        s3 = object({
+          actions = list(string)
+          s3_resource = string
+        })
+      })
+    })
+    ecr = object({
+      ecr_name = string
     })
   }))
 }
@@ -10,11 +23,5 @@ variable "lambdas" {
 variable "s3" {
   type = map(object({
     bucket_name = string
-  }))
-}
-
-variable "ecr" {
-  type = map(object({
-    ecr_name = string
   }))
 }

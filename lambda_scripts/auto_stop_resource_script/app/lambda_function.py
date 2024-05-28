@@ -4,6 +4,9 @@ import boto3
 import sqlite3
 from datetime import datetime, timezone, timedelta
 
+"""
+auto_stop_resource_script
+"""
 
 region_name = os.environ.get('REGION_NAME', 'ap-northeast-1')
 ec2_client = boto3.client('ec2', region_name=region_name)
@@ -24,13 +27,13 @@ db_s3_file = os.path.join(db_bucket_path, db_bucket_obj)
 def get_tokyo_hour_minute_now():
     # 現在のUTC時刻を取得
     utc_now = datetime.now(timezone.utc)
-    print(f"UTC now: {utc_now}")
 
     # 東京のタイムゾーン（UTC+9時間）
     tokyo_tz = timezone(timedelta(hours=9))
 
     # UTC時刻を東京の時刻に変換
     tokyo_time = utc_now.astimezone(tokyo_tz)
+    print(f"Tokyo now{tokyo_time}")
 
     return f"{str(tokyo_time.hour).zfill(2)}:{str(tokyo_time.minute).zfill(2)}"
 
@@ -81,10 +84,12 @@ def select_ec2_instance_stop(conn, day='', time=''):
 
     return rows
 
+
 def download_s3_db_file():
     try:
         s3_client.download_file(db_bucket_name, db_s3_file,
             '/tmp/' + db_bucket_obj)
+        print('S3 download Success')
     except Exception as e:
         print('S3 download error')
 
@@ -95,7 +100,7 @@ def start_ec2_instance(instance_id):
             instance_id
         ]
     )
-    print(f'{instance_id} を開始しました')
+    print(f'{instance_id} is start')
 
 
 def stop_ec2_instance(instance_id):
@@ -104,7 +109,7 @@ def stop_ec2_instance(instance_id):
             instance_id
         ]
     )
-    print(f'{instance_id} を停止しました')
+    print(f'{instance_id} is stopped')
 
 
 def get_ec2_instance_status(instance_id):
@@ -131,6 +136,8 @@ def main():
         day=week_day,
         time=now_time
     )
+    if len(start_instance_rows) == 0:
+        print('No Records not will be start ec2 instance')
 
     for start_instance in start_instance_rows:
         start_ec2_instance(start_instance[0])
@@ -141,6 +148,9 @@ def main():
         day=week_day,
         time=now_time
     )
+
+    if len(stop_instance_rows) == 0:
+        print('No Records not will be stop ec2 instance')
 
     for stop_instance in stop_instance_rows:
         stop_ec2_instance(stop_instance[0])
