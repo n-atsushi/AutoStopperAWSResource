@@ -59,7 +59,6 @@ jobs:
         uses: aquasecurity/tfsec-pr-commenter-action@v1.2.0
         with:
           github_token: ${{ github.token }}
-
   deploy-ecr:
     name: 'Deploy ECR to AWS'
     runs-on: ubuntu-latest
@@ -106,7 +105,7 @@ jobs:
     defaults:
       run:
         working-directory: ${{ matrix.directory }}
-    needs: terraform
+    needs: deploy-ecr
     steps:
       - name: Checkout
         uses: actions/checkout@v4
