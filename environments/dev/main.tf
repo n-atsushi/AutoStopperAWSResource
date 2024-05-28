@@ -66,7 +66,7 @@ module "dev-resources" {
               "s3:GetObject",
               "s3:ListBucket"
             ]
-             s3_resource = "s3-auto-resource-db"
+            s3_resource = "s3-auto-resource-db"
           }
         }
       }
