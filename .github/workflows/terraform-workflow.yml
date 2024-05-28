@@ -106,6 +106,9 @@ jobs:
         working-directory: ${{ matrix.directory }}
     needs: deploy
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Setup AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -115,6 +118,7 @@ jobs:
       - name: ECR Login
         uses: aws-actions/amazon-ecr-login@v2
         id: login-ecr
+
       - name: build and push docker image to ecr
         env:
           IMAGE_TAG: latest
