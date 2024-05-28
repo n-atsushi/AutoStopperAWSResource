@@ -70,7 +70,6 @@ jobs:
     defaults:
       run:
         working-directory: ${{ matrix.directory }}
-    #if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     needs: terraform
     steps:
       - name: Checkout
