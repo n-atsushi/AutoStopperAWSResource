@@ -46,11 +46,34 @@ module "dev-resources" {
   source = "../../modules/resource"
 
   lambdas = {
-    auto-stop-lamda = {
-      lambda_name = "auto-stop-lambda"
+    auto-stop-lambda = {
+      lambda_name = "auto-stop-resource-script"
       role = {
-        role_name = "auto-stop-lamnda-role"
+        role_name = "auto-stop-lambda-role"
+        policies = {
+          ec2 = {
+            actions = [
+              "ec2:StartInstances",
+              "ec2:StopInstances",
+              "ec2:DescribeInstances"
+            ]
+            resources = [
+              "*"
+            ]
+          }
+          s3 = {
+            actions = [
+              "s3:GetObject",
+              "s3:ListBucket"
+            ]
+             s3_resource = "s3-auto-resource-db"
+          }
+        }
       }
+      ecr = {
+        ecr_name = "auto-stop-resource-lambda"
+      }
+
     }
   }
 
@@ -62,11 +85,4 @@ module "dev-resources" {
       bucket_name = "s3-auto-resource-db-atsushi"
     }
   }
-
-  ecr = {
-    auto-stop-resource-lambda = {
-      ecr_name = "auto-stop-resource-lambda"
-    }
-  }
-
 }
