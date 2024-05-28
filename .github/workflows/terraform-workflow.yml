@@ -106,6 +106,10 @@ jobs:
         working-directory: ${{ matrix.directory }}
     needs: deploy
     steps:
+      - name: Set up arm64
+        uses: docker/setup-qemu-action@v2
+        with:
+         platforms: linux/arm64
       - name: Checkout
         uses: actions/checkout@v4
 
