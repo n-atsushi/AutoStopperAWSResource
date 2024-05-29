@@ -5,6 +5,10 @@ locals {
       "ec2-policy" = data.aws_iam_policy_document.aws_iam_policy_document_ec2["auto-stop-lambda"].json,
       "s3-policy" = data.aws_iam_policy_document.aws_iam_policy_document_s3["auto-stop-lambda"].json,
     }
+    auto-stop-db-lambda = {
+      "cloudwatch-policy" = data.aws_iam_policy_document.aws_iam_policy_document_cloudwatch.json
+      "s3-policy" = data.aws_iam_policy_document.aws_iam_policy_document_s3["auto-stop-db-lambda"].json,
+    }
   }
 }
 
@@ -40,9 +44,7 @@ data "aws_iam_policy_document" "aws_iam_policy_document_ec2" {
 
   statement {
     effect = "Allow"
-
     actions = each.value.role.policies.ec2.actions
-
     resources = each.value.role.policies.ec2.resources
   }
 }
@@ -51,15 +53,20 @@ data "aws_iam_policy_document" "aws_iam_policy_document_s3" {
   for_each = var.lambdas
 
   statement {
-    effect = "Allow"
+    effect  = "Allow"
     actions = each.value.role.policies.s3.actions
 
-    resources = [
+    resources = flatten([
       aws_s3_bucket.s3[each.value.role.policies.s3.s3_resource].arn,
-      "${aws_s3_bucket.s3[each.value.role.policies.s3.s3_resource].arn}/*"
-    ]
+      "${aws_s3_bucket.s3[each.value.role.policies.s3.s3_resource].arn}/*",
+      each.key == "auto-stop-db-lambda" ? [
+        aws_s3_bucket.s3["s3-auto-resource"].arn,
+        "${aws_s3_bucket.s3["s3-auto-resource"].arn}/*",
+      ] : []
+    ])
   }
 }
+
 
 resource "aws_iam_role" "lambda_role" {
   for_each = var.lambdas
@@ -91,7 +98,11 @@ resource "aws_lambda_function" "lambda" {
 
   environment {
     variables = {
-      foo = "bar"
+      "REGION_NAME": "ap-northeast-1",
+      "S3_AUTO_RESOURCE_DB_BUCKET": "s3-auto-resource-db-atsushi",
+      "S3_AUTO_RESOURCE_DB_PATH": "db-resources",
+      "S3_AUTO_RESOURCE_DB_OBJ": "aws_resources.db",
+      "S3_AUTO_RESOURCE_YML_BUCKET": "s3-auto-resource-yml-atsushi"
     }
   }
 }

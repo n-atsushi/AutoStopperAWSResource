@@ -1,3 +1,7 @@
 {
-  "REGION_NAME": "us-east-1"
+  "REGION_NAME": "us-east-1",
+  "S3_AUTO_RESOURCE_DB_BUCKET": "s3-auto-resource-db-atsushi",
+  "S3_AUTO_RESOURCE_DB_PATH": "db-resources",
+  "S3_AUTO_RESOURCE_DB_OBJ": "aws_resources.db",
+  "S3_AUTO_RESOURCE_YML_BUCKET": "s3-auto-resource-yml-atsushi"
 }
