@@ -139,7 +139,7 @@ jobs:
     defaults:
       run:
         working-directory: ${{ matrix.directory }}
-    needs: deploy-ecr, deploy-ecr-db
+    needs: deploy-ecr-db
     steps:
       - name: Checkout
         uses: actions/checkout@v4
