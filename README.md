@@ -19,4 +19,4 @@ AutoStopperAWSResourceはサーバーレス環境におけるAWSリソースの�
 - yml(主にリソースの構成管理用)
 
 # 構成図
-![構成](https://github.com/n-atsushi/AutoStopperAWSResource/structure.png)
+![構成](https://github.com/n-atsushi/AutoStopperAWSResource/blob/main/structure.png)
