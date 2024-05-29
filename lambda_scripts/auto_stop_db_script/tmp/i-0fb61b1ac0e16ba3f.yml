@@ -1,8 +1,11 @@
 ec2_instance:
   - instance_id: "i-0fb61b1ac0e16ba3f"
+    instance_type: "t2.micro"
+    state: "running"
+    region: "ap-northeast-1"
     start_time:
       Monday: "08:00"
-      Tuesday: "09:00"
+      Tuesday: "99:99"
       Wednesday: "10:00"
       Thursday: "11:00"
       Friday: "12:00"

@@ -5,6 +5,10 @@ locals {
       "ec2-policy" = data.aws_iam_policy_document.aws_iam_policy_document_ec2["auto-stop-lambda"].json,
       "s3-policy" = data.aws_iam_policy_document.aws_iam_policy_document_s3["auto-stop-lambda"].json,
     }
+    auto-stop-db-lambda = {
+      "cloudwatch-policy" = data.aws_iam_policy_document.aws_iam_policy_document_cloudwatch.json
+      "s3-policy" = data.aws_iam_policy_document.aws_iam_policy_document_s3["auto-stop-db-lambda"].json,
+    }
   }
 }
 
@@ -40,9 +44,7 @@ data "aws_iam_policy_document" "aws_iam_policy_document_ec2" {
 
   statement {
     effect = "Allow"
-
     actions = each.value.role.policies.ec2.actions
-
     resources = each.value.role.policies.ec2.resources
   }
 }
@@ -51,15 +53,20 @@ data "aws_iam_policy_document" "aws_iam_policy_document_s3" {
   for_each = var.lambdas
 
   statement {
-    effect = "Allow"
+    effect  = "Allow"
     actions = each.value.role.policies.s3.actions
 
-    resources = [
+    resources = flatten([
       aws_s3_bucket.s3[each.value.role.policies.s3.s3_resource].arn,
-      "${aws_s3_bucket.s3[each.value.role.policies.s3.s3_resource].arn}/*"
-    ]
+      "${aws_s3_bucket.s3[each.value.role.policies.s3.s3_resource].arn}/*",
+      each.key == "auto-stop-db-lambda" ? [
+        aws_s3_bucket.s3["s3-auto-resource"].arn,
+        "${aws_s3_bucket.s3["s3-auto-resource"].arn}/*",
+      ] : []
+    ])
   }
 }
+
 
 resource "aws_iam_role" "lambda_role" {
   for_each = var.lambdas
@@ -91,7 +98,33 @@ resource "aws_lambda_function" "lambda" {
 
   environment {
     variables = {
-      foo = "bar"
+      "REGION_NAME": "ap-northeast-1",
+      "S3_AUTO_RESOURCE_DB_BUCKET": "s3-auto-resource-db-atsushi",
+      "S3_AUTO_RESOURCE_DB_PATH": "db-resources",
+      "S3_AUTO_RESOURCE_DB_OBJ": "aws_resources.db",
+      "S3_AUTO_RESOURCE_YML_BUCKET": "s3-auto-resource-yml-atsushi"
     }
   }
 }
+
+# # ymlのトリガー
+# resource "aws_s3_bucket_notification" "bucket_notification_yml" {
+#   bucket = aws_s3_bucket.s3["s3-auto-resource"].id
+#
+#   lambda_function {
+#     lambda_function_arn = aws_lambda_function.lambda[auto-stop-db-lambda].arn
+#     events              = ["s3:ObjectCreated:*"]
+#     filter_prefix       = "AWSLogs/"
+#     filter_suffix       = ".log"
+#   }
+#
+#   depends_on = [aws_lambda_permission.allow_bucket_yml]
+# }
+#
+# resource "aws_lambda_permission" "allow_bucket_yml" {
+#   statement_id  = "AllowExecutionFromS3Bucket"
+#   action        = "lambda:InvokeFunction"
+#   function_name = aws_lambda_function.lambda[auto-stop-db-lambda].function_name
+#   principal     = "s3.amazonaws.com"
+#   source_arn    = aws_s3_bucket.s3["s3-auto-resource"].arn
+# }

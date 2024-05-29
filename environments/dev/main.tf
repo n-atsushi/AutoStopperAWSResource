@@ -73,6 +73,29 @@ module "dev-resources" {
       ecr = {
         ecr_name = "auto-stop-resource-lambda"
       }
+    }
+    auto-stop-db-lambda = {
+      lambda_name = "auto-stop-db-script"
+      role = {
+        role_name = "auto-stop-db-lambda-role"
+        policies = {
+          ec2 = {
+            actions   = null
+            resources = null
+          }
+          s3 = {
+            actions = [
+              "s3:GetObject",
+              "s3:ListBucket",
+              "s3:PutObject"
+            ]
+            s3_resource = "s3-auto-resource-db"
+          }
+        }
+      }
+      ecr = {
+        ecr_name = "auto-stop-db-lambda"
+      }
 
     }
   }
