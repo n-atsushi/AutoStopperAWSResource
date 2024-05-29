@@ -80,7 +80,7 @@ module "dev-resources" {
         role_name = "auto-stop-db-lambda-role"
         policies = {
           ec2 = {
-            actions = null
+            actions   = null
             resources = null
           }
           s3 = {

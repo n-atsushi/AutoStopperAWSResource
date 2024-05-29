@@ -104,7 +104,7 @@ jobs:
     defaults:
       run:
         working-directory: ${{ matrix.directory }}
-    needs: terraform
+    needs: deploy-ecr
     steps:
       - name: Set up arm64
         uses: docker/setup-qemu-action@v2
