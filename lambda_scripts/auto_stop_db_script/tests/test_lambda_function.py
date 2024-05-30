@@ -7,7 +7,6 @@ import sqlite3
 from moto import mock_aws
 from unittest import mock
 from ..app import lambda_function
-from . import mock_ssm_ps
 
 
 test_s3_env_dict = json.loads(open("env/lambda_function_env.json", "r").read())
